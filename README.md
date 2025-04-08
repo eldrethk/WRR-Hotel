@@ -1,4 +1,4 @@
-## 🏨 WRR Hotel Reservation System
+## 🏨 Hotel Reservation System
 
 ### Overview
 
