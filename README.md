@@ -12,7 +12,7 @@ WRR-Hotel is a hotel room reservation system built with .NET Core and Blazor. It
 - 🗖️ Calendar-based booking
 - 📻 Reservation creation and rollback logic
 - 👤 Admin management interface
-- 🔒 Authentication and role-based access (if applicable)
+- 🔒 Authentication and role-based access 
 - 📊 Real-time room availability checks
 
 ---
