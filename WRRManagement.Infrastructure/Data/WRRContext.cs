@@ -18,8 +18,8 @@ namespace WRRManagement.Infrastructure.Data
         
             public WRRContext(IConfiguration configuration)
             {
-                _configuration = configuration;
-                _connectionString = _configuration.GetConnectionString("WRRDBConnection");
+                _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            _connectionString = _configuration.GetConnectionString("WRRDBConnection") ?? throw new InvalidOperationException("Connection string is not found");
             }
 
         public IDbConnection CreateConnection() => new SqlConnection(_connectionString);
