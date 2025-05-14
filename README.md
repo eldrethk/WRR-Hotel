@@ -39,7 +39,7 @@ WRR-Hotel/
 │   ├── Views                      # .cshtml pages with Html binded to Models
 ├── WRRManagement.Domain/          # Data Layer / Models and Interfaces
 ├── WRRManament.Infrastructure/    # Project's Repository, DAL and Dapper connection
-├── WRR-Reserv/                    # Front end / Client Online Booking Platform           
+├── WRR-Reserv/                    # Front end / Client Online Booking Platform  (Blazor)         
 │   ├── Pages/                     # Razor Pages
 |   ├── Pages/                     # View Models (for data binding)
 │   ├── Services/                  # C# service classes
