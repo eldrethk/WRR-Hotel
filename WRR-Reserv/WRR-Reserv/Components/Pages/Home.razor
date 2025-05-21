@@ -1,6 +1,7 @@
 ﻿@rendermode RenderMode.InteractiveServer
 @page "/{id:int}"
-@using Microsoft.AspNetCore.Components
+
+@inject IJSRuntime JS
 @inject NavigationManager Navigation
 @inject WRR_Reserv.Services.RoomService roomService
 @inject SearchModel searchModel
@@ -91,73 +92,7 @@
 
 </div>
 
-@if(selectedRoom != null){
-    <div id='roomModal' class='modal' role="dialog" data-backdrop="static" style="display:@(IsVisible ? "block" : "none")">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">  
-                    <h2 class="modal-title h3 form-padding-left"> @selectedRoom.roomType.Name</h2>
-                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close" @onclick="HideAsync">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    @if(selectedRoom?.roomImages.Count > 0)
-                    {
-                        <div id="carouselExampleControls" class="carousel carousel-dark slide carousel-fade" data-bs-ride="carousel">
-                            <div class="carousel-inner">                            
-
-                                @foreach(var imgs in selectedRoom.roomImages)
-                                {
-                                    <div class="carousel-item @(imgs.MainImage == true ? "active" : "")">
-                                        <a class="simple-img"><img src="@($"https://localhost:44325/{imgs.FileName}")" class="d-block w-100" alt="Room Image" /></a>
-                                    </div>
-                                }                              
-
-                            </div>
-                            @if (selectedRoom.roomImages.Count >= 2)
-                            {
-                                <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
-                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                    <span class="visually-hidden">Previous</span>
-                                </button>
-                                <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
-                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                    <span class="visually-hidden">Next</span>
-                                </button>
-                            }
-                        </div>
-                    }
-                    <div class="my-3">
-                        <h5>Room Details</h5>
-                        <p>@selectedRoom.roomType.Description</p>
-
-                        @if(selectedRoom.roomFeatures.Count > 0)
-                        {
-                            <h5>Special Features</h5>
-                            <ul class="fa-ul">
-                                @foreach(var feature in selectedRoom.roomFeatures)
-                                {
-                                    var icon = (MarkupString)($"&#x{feature.Icon};");                                    <li>
-                                        <i class="fa-li fa">@icon</i>
-                                        @feature.Features
-                                    </li>
-                                }
-                            </ul>
-                        }
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @onclick="HideAsync">Close</button>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-
-
-}
+<RoomDetailModal @ref="RoomDetailModal" selectedRoom="@selectedRoom"></RoomDetailModal>
 @code {
     [Parameter]
     public int id { get; set; }
@@ -166,9 +101,10 @@
     private string errorMessage;
 
     private List<ViewRoomModel>? roomList;
-    private ViewRoomModel? selectedRoom;   
+    private ViewRoomModel? selectedRoom;  
+    private RoomDetailModal? RoomDetailModal;
 
-    private bool IsVisible { get; set; }
+    private bool IsVisible = false;
     private bool errorRead = false;
 
     protected override async Task OnInitializedAsync()
@@ -183,6 +119,15 @@
         roomList = await roomService.GetAllRoomsAsync(id);
         selectedRoom = roomList.FirstOrDefault();        
     } 
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (IsVisible && selectedRoom != null)
+        {
+            IsVisible = false;
+            await JS.InvokeVoidAsync("showModal", "roomModal");
+        }
+    }
 
     public async Task SearchSubmit()
     {

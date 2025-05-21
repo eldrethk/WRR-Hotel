@@ -159,7 +159,7 @@ namespace WRRManagement.Infrastructure.RoomTypeRespository
        
             try
             {
-                quantity = DapperHelper.ExecuteQuery("dbo.genSelLowQtyForRoomAllocation", parameters, context);
+                quantity = DapperHelper.ExecuteQueryInt("dbo.genSelLowQtyForRoomAllocation", parameters, context, "@Qty");
             }
             catch(Exception ex) 
             {

@@ -1,7 +1,11 @@
-using WRR_Reserv.Client.Pages;
+using System.Data;
+using System.Data.SqlClient;
 using WRR_Reserv.Components;
 using WRR_Reserv.Models;
 using WRR_Reserv.Services;
+using WRRManagement.Domain.Amenities;
+using WRRManagement.Infrastructure.AmenityRepository;
+using WRRManagement.Infrastructure.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,12 +16,19 @@ builder.Services.AddHttpClient("WRRApiClient", client =>
     client.DefaultRequestHeaders.Add("Accept", "application/json");
 });
 
-builder.Services.AddScoped<WRR_Reserv.Services.RoomService>();
-builder.Services.AddScoped<WRR_Reserv.Services.BookService>();
+
+builder.Services.AddScoped<AmenityCartService>();
+builder.Services.AddScoped<RoomService>();
+builder.Services.AddScoped<BookService>();
+builder.Services.AddScoped<AddonService>();
+builder.Services.AddScoped<WRRContext>();
+builder.Services.AddScoped<IExtraAmenity, AmenityRepository>();
 
 //registering models
+builder.Services.AddSingleton<SelectedAmenityModel>();
 builder.Services.AddSingleton<SearchModel>();
 builder.Services.AddSingleton<BookingModel>();
+builder.Services.AddSingleton<AmenityModel>();
 builder.Services.AddSingleton<ErrorState>();
 
 builder.Services.AddLogging(logging =>
@@ -52,7 +63,7 @@ app.UseAntiforgery();
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode()
-    .AddInteractiveWebAssemblyRenderMode()
-    .AddAdditionalAssemblies(typeof(WRR_Reserv.Client._Imports).Assembly);
+    .AddInteractiveWebAssemblyRenderMode();
+   
 
 app.Run();

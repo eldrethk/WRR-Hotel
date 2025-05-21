@@ -10,7 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\WRRManagement.Domain\WRRManagement.Domain.csproj" />
-    <ProjectReference Include="..\WRR-Reserv.Client\WRR-Reserv.Client.csproj" />
+    <ProjectReference Include="..\..\WRRManagement.Infrastructure\WRRManagement.Infrastructure.csproj" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.8" />
   </ItemGroup>
 

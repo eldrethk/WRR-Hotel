@@ -15,6 +15,30 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WRR-Reserv.Client", "WRR-Re
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sql-database", "Sql-database", "{EA046077-239D-4F7F-B1D6-4AFFF62B19D7}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ScreenShots", "ScreenShots", "{0291ADD7-5F50-455D-896F-1587F3BBD5B5}"
+	ProjectSection(SolutionItems) = preProject
+		..\..\..\OneDrive\Desktop\WRR\screenshots\Screensh 140231.png = ..\..\..\OneDrive\Desktop\WRR\screenshots\Screensh 140231.png
+		..\..\..\OneDrive\Desktop\WRR\screenshots\Screenshot 135803.png = ..\..\..\OneDrive\Desktop\WRR\screenshots\Screenshot 135803.png
+		..\..\..\OneDrive\Desktop\WRR\screenshots\Screenshot 135929.png = ..\..\..\OneDrive\Desktop\WRR\screenshots\Screenshot 135929.png
+		..\..\..\OneDrive\Desktop\WRR\screenshots\Screenshot 140134.png = ..\..\..\OneDrive\Desktop\WRR\screenshots\Screenshot 140134.png
+		..\..\..\OneDrive\Desktop\WRR\screenshots\Screenshot 141012.png = ..\..\..\OneDrive\Desktop\WRR\screenshots\Screenshot 141012.png
+		..\..\..\OneDrive\Desktop\WRR\screenshots\Screenshot 141042.png = ..\..\..\OneDrive\Desktop\WRR\screenshots\Screenshot 141042.png
+		..\..\..\OneDrive\Desktop\WRR\screenshots\Screenshot 141229.png = ..\..\..\OneDrive\Desktop\WRR\screenshots\Screenshot 141229.png
+		..\..\..\OneDrive\Desktop\WRR\screenshots\Screenshot 141609.png = ..\..\..\OneDrive\Desktop\WRR\screenshots\Screenshot 141609.png
+		..\..\..\OneDrive\Desktop\WRR\screenshots\Screenshot 141636.png = ..\..\..\OneDrive\Desktop\WRR\screenshots\Screenshot 141636.png
+		..\..\..\OneDrive\Desktop\WRR\screenshots\Screenshot 142602.png = ..\..\..\OneDrive\Desktop\WRR\screenshots\Screenshot 142602.png
+		..\..\..\OneDrive\Desktop\WRR\screenshots\Screenshot 142639.png = ..\..\..\OneDrive\Desktop\WRR\screenshots\Screenshot 142639.png
+		..\..\..\OneDrive\Desktop\WRR\screenshots\Screenshot 173702.png = ..\..\..\OneDrive\Desktop\WRR\screenshots\Screenshot 173702.png
+		..\..\..\OneDrive\Desktop\WRR\screenshots\Screenshot 174028.png = ..\..\..\OneDrive\Desktop\WRR\screenshots\Screenshot 174028.png
+		..\..\..\OneDrive\Desktop\WRR\screenshots\Screenshot 174226.png = ..\..\..\OneDrive\Desktop\WRR\screenshots\Screenshot 174226.png
+		..\..\..\OneDrive\Desktop\WRR\screenshots\Screenshot 174411.png = ..\..\..\OneDrive\Desktop\WRR\screenshots\Screenshot 174411.png
+		..\..\..\OneDrive\Desktop\WRR\screenshots\Screenshot 174521.png = ..\..\..\OneDrive\Desktop\WRR\screenshots\Screenshot 174521.png
+		..\..\..\OneDrive\Desktop\WRR\screenshots\Screenshot 174910.png = ..\..\..\OneDrive\Desktop\WRR\screenshots\Screenshot 174910.png
+		..\..\..\OneDrive\Desktop\WRR\screenshots\Screenshot 175320.png = ..\..\..\OneDrive\Desktop\WRR\screenshots\Screenshot 175320.png
+		..\..\..\OneDrive\Desktop\WRR\screenshots\Screenshot 175527.png = ..\..\..\OneDrive\Desktop\WRR\screenshots\Screenshot 175527.png
+		..\..\..\OneDrive\Desktop\WRR\screenshots\Screenshot140036.png = ..\..\..\OneDrive\Desktop\WRR\screenshots\Screenshot140036.png
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

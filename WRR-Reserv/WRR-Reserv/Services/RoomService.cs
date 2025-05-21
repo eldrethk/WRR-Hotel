@@ -2,6 +2,7 @@
 using WRRManagement.Domain.Reservation;
 using WRRManagement.Domain.RoomTypes;
 using WRRManagement.Domain.APIModels;
+using WRRManagement.Domain.Amenities;
 
 namespace WRR_Reserv.Services
 {
@@ -9,11 +10,13 @@ namespace WRR_Reserv.Services
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<RoomService> _logger;  
+      
 
         public RoomService(IHttpClientFactory httpClientFactory, ILogger<RoomService> logger)
         {
             _httpClientFactory = httpClientFactory;
             _logger = logger;
+           
         }
 
 
@@ -62,6 +65,6 @@ namespace WRR_Reserv.Services
             }
         }
 
-
+       
     }
 }

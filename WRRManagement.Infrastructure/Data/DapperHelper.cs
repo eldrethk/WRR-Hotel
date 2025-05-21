@@ -61,12 +61,7 @@ namespace WRRManagement.Infrastructure.Data
 
                     records1 = result.ToList();
 
-                    /*using (var results = conn.QueryMultiple(spName, dynamicParameters, commandType: CommandType.StoredProcedure))
-                    {
-                        // Read result sets
-                        records1 = results.Read<T1>().ToList();
-                        records2 = results.Read<T2>().ToList();
-                    }*/
+                  
                 }
             }
             catch (Exception ex)
@@ -105,8 +100,6 @@ namespace WRRManagement.Infrastructure.Data
                 try
                 {
                     conn.Open();
-                    //result = conn.Execute(spName, dynamicParameters, commandType: CommandType.StoredProcedure);
-                    //result = SqlMapper.Execute(conn, spName, dynamicParameters, commandType: CommandType.StoredProcedure);
                     result = conn.ExecuteScalar<int>(spName, dynamicParameters, commandType:CommandType.StoredProcedure);
                     conn.Close();
                 }catch (Exception ex) { }

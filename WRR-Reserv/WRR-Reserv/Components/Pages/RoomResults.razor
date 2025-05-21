@@ -1,10 +1,13 @@
 ﻿@page "/RoomResults"
 @rendermode RenderMode.InteractiveServer
+@inject IJSRuntime JS
 @inject SearchModel searchModel
 @inject BookingModel bookingModel
+@inject AmenityModel amenityModel
 @inject NavigationManager Navigation
 
 @inject WRR_Reserv.Services.RoomService roomService
+@inject WRR_Reserv.Services.AddonService addonService
 
 <link rel='stylesheet' id='fontawesome-css' href='https://use.fontawesome.com/releases/v5.11/css/all.css' type='text/css' media='all' />
 <div class="container rounded my-4 bg-gray-200 p-3">
@@ -26,7 +29,7 @@
             <p class="w-100 text-center">Loading...</p>
         </div>
     }
-   else if(availRoomList?.Count > 0){
+    else if(availRoomList?.Count > 0){
         foreach(var availRoom in availRoomList){
             <div class="row rounded bg-white p-2 my-4 mx-2 round-border">
                 @if(availRoom.viewRoomType.mainImage != null){
@@ -109,24 +112,26 @@
                 <h4 class="text-primary">Standard Rates</h4>
                 @if(selectedAvailRoom != null){
                     @if(selectedAvailRoom.ViewRoomRateAs == "Basic"){
-                        <table class="table table-striped">
-                            <tr>
-                                <td class="pl-4 font-weight-bold">Deposit:</td>
-                                <td>@selectedAvailRoom.deposit.ToString("C")</td>
-                            </tr>
-                            <tr>
-                                <td class="pl-4 font-weight-bold">SubTotal:</td>
-                                <td>@selectedAvailRoom.subTotal.ToString("C")</td>
-                            </tr>
-                            <tr class="border-bottom: 1px solid #999">
-                                <td class="pl-4 font-weight-bold">Taxes:</td>
-                                <td>@selectedAvailRoom.tax.ToString("C")</td>
-                            </tr>
-                            <tr>
-                                <td class="pl-4 font-weight-bold">Total:</td>
-                                <td>@selectedAvailRoom.total.ToString("C")</td>
-                            </tr>
-                        </table>
+                        <div class="d-flex justify-content-center">
+                            <table class="table table-striped smalltbl">
+                                <tr>
+                                    <td class="pl-4 font-weight-bold">Deposit:</td>
+                                    <td>@selectedAvailRoom.deposit.ToString("C")</td>
+                                </tr>
+                                <tr>
+                                    <td class="pl-4 font-weight-bold">SubTotal:</td>
+                                    <td>@selectedAvailRoom.subTotal.ToString("C")</td>
+                                </tr>
+                                <tr class="border-bottom: 1px solid #999">
+                                    <td class="pl-4 font-weight-bold">Taxes:</td>
+                                    <td>@selectedAvailRoom.tax.ToString("C")</td>
+                                </tr>
+                                <tr>
+                                    <td class="pl-4 font-weight-bold">Total:</td>
+                                    <td>@selectedAvailRoom.total.ToString("C")</td>
+                                </tr>
+                            </table>
+                        </div>
                     }
                     else{
                         <table class="table table-striped">
@@ -188,78 +193,7 @@
     </div>  
 </div>
 
-
-@if (selectedRoom != null)
-{
-    <div id='roomModal' class='modal' role="dialog" data-backdrop="static" style="display:@(RoomModalVisible ? "block" : "none")">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2 class="modal-title h3 form-padding-left"> @selectedRoom?.roomType.Name</h2>
-                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close" @onclick="HideRoomAsync">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    @if (selectedRoom?.roomImages.Count > 0)
-                    {
-                        <div id="carouselExampleControls" class="carousel carousel-dark slide carousel-fade" data-bs-ride="carousel">
-                            <div class="carousel-inner">
-
-                                @foreach (var imgs in selectedRoom.roomImages)
-                                {
-                                    <div class="carousel-item @(imgs.MainImage == true ? "active" : "")">
-                                        <a class="simple-img"><img src="@($"https://localhost:44325/{imgs.FileName}")" class="d-block w-100" alt="Room Image" /></a>
-                                    </div>
-                                }
-
-                            </div>
-                            @if (selectedRoom.roomImages.Count >= 2)
-                            {
-                                <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
-                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                    <span class="visually-hidden">Previous</span>
-                                </button>
-                                <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
-                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                    <span class="visually-hidden">Next</span>
-                                </button>
-                            }
-                        </div>
-                    }
-                    <div class="my-3">
-                        <h5>Room Details</h5>
-                        <p>@selectedRoom.roomType.Description</p>
-
-                        @if (selectedRoom.roomFeatures.Count > 0)
-                        {
-                            <h5>Special Features</h5>
-                            <ul class="fa-ul">
-                                @foreach (var feature in selectedRoom.roomFeatures)
-                                {
-                                    var icon = (MarkupString)($"&#x{feature.Icon};");
-                                    <li>
-                                        <i class="fa-li fa">@icon</i>
-                                        @feature.Features
-                                    </li>
-                                }
-                            </ul>
-                        }
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @onclick="HideRoomAsync">Close</button>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-
-
-}
-
-
+<RoomDetailModal @ref="roomDetailModal" selectedRoom="@selectedRoom" />
 
 @code {
     [Parameter]
@@ -268,9 +202,10 @@
     private int totalDays; 
     private AvailableRackRoom? selectedAvailRoom;
     private ViewRoomModel? selectedRoom;
+    private RoomDetailModal roomDetailModal;
+    private bool shouldShowRoomModal = false;
 
-    private bool RateModalVisible { get; set; }
-    private bool RoomModalVisible { get; set; }
+    private bool RateModalVisible { get; set; }  
 
     protected override async Task OnInitializedAsync()
     {
@@ -280,12 +215,22 @@
 
     }
 
-    public void ViewMore(int roomTypeID)
+    public async Task ViewMore(int roomTypeID)
     {
         selectedRoom = availRoomList.FirstOrDefault(x => x.viewRoomType.roomType.RoomTypeID == roomTypeID)?.viewRoomType;
-        RoomModalVisible = true;
+        shouldShowRoomModal = true;
         StateHasChanged();
     }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (shouldShowRoomModal && selectedRoom != null)
+        {
+            shouldShowRoomModal = false;
+            await JS.InvokeVoidAsync("showModal", "roomModal");
+        }
+    }
+
 
     public void ViewRates(AvailableRackRoom availRackRoom)
     {
@@ -298,26 +243,26 @@
     {
         if (availRackRoom != null)
         {
+          
             bookingModel.SearchModel = searchModel;
             bookingModel.availableRackRooms = availRackRoom;
-
-            //go to booking page
-            Navigation.NavigateTo("/Book", true);
+            if (addonService.HotelHasAmenities(searchModel.HotelId))
+            {
+                amenityModel.BookingModel = bookingModel;
+                Navigation.NavigateTo($"/Addons/{searchModel.HotelId}", true); 
+            }
+            else
+            {
+                //go to booking page               
+                Navigation.NavigateTo("/Book", true);
+            }
             StateHasChanged();
         }
         else{
             //navigate to error page. 
         }
     }
-
-    public void HideRoomAsync()
-    {
-        selectedRoom = null;
-        RoomModalVisible = false;
-        StateHasChanged();
-        
-    }
-
+   
     public void HideRateModal()
     {
         selectedAvailRoom = null;

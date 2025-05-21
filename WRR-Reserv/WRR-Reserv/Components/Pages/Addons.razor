@@ -1,0 +1,521 @@
+﻿@page "/Addons/{id:int}"
+@rendermode RenderMode.InteractiveServer
+@inject IJSRuntime JS
+
+@inject AmenityModel amenityModel
+@inject NavigationManager Navigation
+
+@inject AddonService addonService
+@inject AmenityCartService cartService
+
+<div class="container rounded my-4 bg-gray-200 p-3">
+    <div class="row rounded bg-white py-2 my-4 mx-2 round-border">
+        <div class="col-sm-4 h5 text-center pt-2"><i class="fas fa-calendar-alt text-secondary d-none d-md-inline-block"></i> @Convert.ToDateTime(amenityModel.BookingModel.SearchModel.ArrivalDate).ToString("ddd, MMM dd") - @Convert.ToDateTime(amenityModel.BookingModel.SearchModel.DepartureDate).ToString("ddd, MMM dd")</div>
+        <div class="col-sm-4 h5 text-center pt-2"><i class="fas fa-user text-secondary ml-3 mr-2 d-none d-md-inline-block"></i>@amenityModel.BookingModel.SearchModel.Adults Adults <span class="d-md-none d-sm-inline mr-1">/</span><i class="fas fa-child text-secondary ml-2 mr-2 d-none d-md-inline-block"></i>@amenityModel.BookingModel.SearchModel.Children Children</div>
+        <div class="col-sm-4">
+            <p class="text-right"><a href="/@id">Edit Itinerary</a></p>
+
+        </div>
+    </div>
+    <div class="row p-2 my-4 mx-2">
+        <div class="col-md-8">
+            <h2>Add-Ons</h2>           
+        </div>
+        <div class="col-md-4">
+            <div class="row h-100">
+                <div class="col bg-white rounded p-3 h-100 round-border">
+                    <p class="font-weight-bold w-100 h5 text-right">
+                        <span class="text-primary pr-3">Add-on Total</span> @string.Format("{0:C}", cartService.GetTotal())  
+                        @if (cartService.Items.Any())
+                        {
+                            <button id="btnShowCart" type="button" class="cartlink ml-2"
+                            @onclick="ViewCart">
+                                (View Cart)</button>                     
+                            <p class="my-3"><button class="btn btn-primary w-100" @onclick="() => NavigateAddCart()">Add & Continue</button></p>
+
+
+                            <div id="cartModal" class="modal fade" role="dialog" data-backdrop="static">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h2 class="modal-title h3 form-padding-left text-primary">Add-on Cart</h2>
+                                            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <table class="w-100 table table-striped">
+                                                @foreach(var cartitem in cartService.Items){
+                                                    var item = amenityList.FirstOrDefault(x => x.Amenity.AmenityID == cartitem.ExtraAmenityID)?.Amenity;
+                                                    if(item != null){
+                                                        <tr>
+                                                            <td colspan="4" class="header"><h5>@item.Name</h5></td>
+                                                        </tr>
+                                                        <tr>
+                                                            @if(item.OneTimeFee || item.PerNightStay){
+                                                                <td></td>
+                                                                <td>
+                                                                    @if(item.PerNightStay){
+                                                                        <label>@cartitem.NumOfPeople.ToString() nights</label>
+                                                                    }
+                                                                </td>
+                                                                <td>@string.Format("{0:C}", (cartitem.Fee + cartitem.Tax))</td>
+                                                                <td><button type="button" class="btn p-0" data-icon="true" data-id="@cartitem.ExtraAmenityID" @onclick="@(() => cartService.RemoveItem(cartitem))"><i class="fa fa-trash text-secondary"></i></button></td>
+                                                            }
+                                                            else if(item.PerDay){
+                                                                <td>@(DateTime.TryParse(cartitem.Date, out var parsedDate) ? parsedDate.ToString("ddd, MMM, d") : cartitem.Date)</td>
+                                                                <td></td>
+                                                                <td>@string.Format("{0:C}", (cartitem.Fee + cartitem.Tax))</td>
+                                                                <td><button type="button" class="btn p-0" data-icon="true" data-id="@cartitem.ExtraAmenityID" @onclick="@(() => cartService.RemoveItem(cartitem))"><i class="fa fa-trash text-secondary"></i></button></td>
+                                                            }
+                                                            else if(item.OneTimeFeePerson){
+                                                                <td></td>
+                                                                <td>Qty. x @cartitem.NumOfPeople.ToString()</td>
+                                                                <td>@string.Format("{0:C}", (cartitem.Fee + cartitem.Tax))</td>
+                                                                <td><button type="button" class="btn p-0" data-icon="true" data-id="@cartitem.ExtraAmenityID" @onclick="@(() => cartService.RemoveItem(cartitem))"><i class="fa fa-trash text-secondary"></i></button></td>
+                                                            }
+                                                            else if(item.PerDayPerPerson){
+                                                                <td>@(DateTime.TryParse(cartitem.Date, out var parsedDate) ? parsedDate.ToString("ddd, MMM, d") : cartitem.Date)</td>
+                                                                <td>Qty. X @cartitem.NumOfPeople.ToString()</td>
+                                                                <td>@string.Format("{0:C}", (cartitem.Fee + cartitem.Tax))</td>
+                                                                <td><button type="button" class="btn p-0" data-icon="true" data-id="@cartitem.ExtraAmenityID" @onclick="@(() => cartService.RemoveItem(cartitem))"><i class="fa fa-trash text-secondary"></i></button></td>
+                                                            }
+                                                            else if(item.Discount){
+                                                                <td></td>
+                                                                <td>Qty. x @cartitem.NumOfPeople.ToString()</td>
+                                                                <td>@string.Format("{0:C}", (cartitem.Fee + cartitem.Tax))</td>
+                                                                <td><button type="button" class="btn p-0" data-icon="true" data-id="@cartitem.ExtraAmenityID" @onclick="@(() => cartService.RemoveItem(cartitem))"><i class="fa fa-trash text-secondary"></i></button></td>
+                                                            }
+                                                        </tr>
+                                                    }
+                                                }
+                                            </table>
+                                            <div class="float-right mb-5">
+                                                <table class="table-cartCalculate">
+                                                    <tbody>
+                                                        <tr>
+                                                            <td class="pl-4"><strong>SubTotal:</strong></td>
+                                                            <td class="text-right pr-2">@string.Format("{0:C}", cartService.GetSubTotal()) </td>
+                                                        </tr>
+                                                        <tr style="border-bottom: 2px solid #999;">
+
+                                                            <td class="pl-4"><strong>Taxes:</strong></td>
+                                                            <td class="text-right pr-2">@string.Format("{0:C}", cartService.GetTotalTax())</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td class="pl-4"><strong>Total: </strong></td>
+                                                            <td class="text-right pr-2">@string.Format("{0:C}", cartService.GetTotal())</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>                                           
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        <p class="my-3 text-center"><button class="btn btn-secondary w-100" @onclick="() => NavigateNullCart()">Skip this Step</button></p>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--Amenitie List-->
+    <div class="p-2 my-4 mx-2">
+        @if(amenityList.Any()){
+            @for (int i = 0; i < amenityList.Count; i += 3)
+            {
+                <div class="row mb-2">
+                    @for (int j = i; j < i + 3 && j < amenityList.Count; j++)
+                    {
+                        var item = amenityList[j];
+                        var isSelected = cartService.Items.Any(ci => ci.ExtraAmenityID == item.Amenity.AmenityID);
+
+                        <div class="col-md-4 pb-3">
+                            <div class="card rounded h-100 border-3 @(isSelected == true ? "border-success" : "border-secondary")"  @key="item.Amenity.AmenityID">
+                                @if (!string.IsNullOrEmpty(item.Amenity.PictureUrl))
+                                {
+                                    <div class="card-header p-0">
+                                        <img src="@($"https://localhost:44325/img/amenity-images/{item.Amenity.PictureUrl}")" class="w-100 main-amenity" />
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="card-header">
+                                        <h3>@item.Amenity.Name</h3>
+                                    </div>
+                                }
+                                <div class="card-body">
+                                    @if (!string.IsNullOrEmpty(item.Amenity.PictureUrl))
+                                    {
+                                        <h3>@item.Amenity.Name</h3>
+                                    }
+                                    @((MarkupString)item.Amenity.Description)
+                                    @if (item.Amenity.Discount == true)
+                                    {
+                                        <p class="text-right h5 pt-3">
+                                            <span class="discount-strike"><span class="discount-text">$ @item.Amenity.DiscountRegularRate</span></span>
+                                            $@item.Amenity.AmenityRate <span class="small font-weight-light">/each</span>
+                                        </p>
+                                    }
+                                    else
+                                    {
+                                        <p class="text-right h5 pt-3">
+                                            $@item.Amenity.AmenityRate
+                                            @if (item.Amenity.OneTimeFee)
+                                            {
+                                                <span class="small font-weight-light"> /One Time Fee </span>
+                                            }
+                                            else if (item.Amenity.OneTimeFeePerson)
+                                            {
+                                                <span class="small font-weight-light"> /Per Person</span>
+                                            }
+                                            else if (item.Amenity.PerDayPerPerson)
+                                            {
+                                                <span class="small font-weight-light"> /Per Day Per Person </span>
+                                            }
+                                            else if (item.Amenity.PerDay)
+                                            {
+                                                <span class="small font-weight-light"> /Per Day </span>
+                                            }
+                                            else if (item.Amenity.PerNightStay)
+                                            {
+                                                <span class="small font-weight-light"> /Per Night Stay </span>
+                                            }
+                                        </p>
+                                    }
+                                    <hr />
+                                    @{
+                                        int days = (amenityModel.BookingModel.SearchModel.DepartureDate - amenityModel.BookingModel.SearchModel.ArrivalDate).Days;
+                                        var dates = Enumerable.Range(0,days + 1).
+                                            Select(i => amenityModel.BookingModel.SearchModel.ArrivalDate.AddDays(i))
+                                            .ToList();
+                                        int guests = amenityModel.BookingModel.SearchModel.Adults + amenityModel.BookingModel.SearchModel.Children;
+                                    }
+                                    @if(item.Amenity.PerDay){                              
+                                        if(days > 0){
+                                            EnsureDateKeyInitialized(item.Amenity.AmenityID, "perday", dates[0].ToString("MM-dd-yyyy"));
+                                            var typeKey = $"{item.Amenity.AmenityID}_perday";
+                                            if (isSelected)
+                                            {
+                                                foreach (var cartitem in cartService.Items.FindAll(x => x.ExtraAmenityID == item.Amenity.AmenityID))
+                                                {
+                                                    <p>@(DateTime.TryParse(cartitem.Date, out var parsedDate) ? parsedDate.ToString("ddd, MMM, d") : cartitem.Date)
+                                                        <button type="button" class="btn btn-secondary ml-3" data-id="@cartitem.ExtraAmenityID" @onclick="@(() => cartService.RemoveItem(cartitem))">Remove</button> 
+                                                    </p>
+                                                }
+                                            }
+                                            <p class="text-right">
+                                                <select class="custom-select w-50" @bind="selectedDates[typeKey]">
+                                                    @foreach (var date in dates)
+                                                    {
+                                                        <option value="@date.ToString("MM-dd-yyyy")">@date.ToString("ddd, MMM, d")</option>
+                                                    }
+                                                </select>
+                                            </p>
+                                            <p class="text-right">
+                                                <button type="button" class="btn btn-success"
+                                                @onclick="() => AddPerDay(item.Amenity.AmenityID, selectedDates[typeKey])">                                                       
+                                                    Add
+                                                </button>
+                                            </p>
+                                        }
+                                    }
+                                    else if(item.Amenity.PerDayPerPerson){
+                                        if(days > 0){
+                                            EnsureDateKeyInitialized(item.Amenity.AmenityID, "perdayperperson", dates[0].ToString("MM-dd-yyyy"));
+                                            EnsureGuestNumKeyInitialized(item.Amenity.AmenityID, "perdayperperson");
+                                            var typeKey = $"{item.Amenity.AmenityID}_perdayperperson";                                          
+                                            if(isSelected){
+                                                foreach (var cartitem in cartService.Items.FindAll(x => x.ExtraAmenityID == item.Amenity.AmenityID))
+                                                {
+                                                    <p>
+                                                        @(DateTime.TryParse(cartitem.Date, out var parsedDate) ? parsedDate.ToString("ddd, MMM, d") : cartitem.Date)
+                                                        - @cartitem.NumOfPeople.ToString()
+                                                        <button type="button" class="btn btn-secondary ml-3" data-id="@cartitem.ExtraAmenityID" @onclick="@(() => cartService.RemoveItem(cartitem))">Remove</button>
+                                                    </p>
+                                                }
+                                            }
+                                            <p class="text-right">
+                                                <select class="custom-select w-50" @bind="selectedDates[typeKey]">
+                                                    @foreach (var date in dates)
+                                                    {
+                                                        <option value="@date.ToString("MM-dd-yyyy")">@date.ToString("ddd, MMM, d")</option>
+                                                    }
+                                                </select>
+                                                <select class="custom-select w-50" @bind="selectedGuestNums[typeKey]">
+                                                    @for (int g = 1; g <= guests; g++)
+                                                    {
+                                                        <option value="@g">@g</option>
+                                                    }
+                                                </select>
+                                            </p>
+                                            <p class="text-right">
+                                                <button type="button" class="btn btn-success"
+                                                @onclick="() => AddPerDayPerson(item.Amenity.AmenityID, selectedDates[typeKey], selectedGuestNums[typeKey]) ">                                                        
+                                                    Add
+                                                </button>
+                                            </p>
+                                        }
+                                    }
+                                    else if(item.Amenity.OneTimeFee){
+                                        if (isSelected)
+                                        {
+                                            var cartitem = cartService.Items.FirstOrDefault(x => x.ExtraAmenityID == item.Amenity.AmenityID);
+                                            <button type="button" class="btn btn-secondary ml-3" data-id="@item.Amenity.AmenityID" @onclick="@(() => cartService.RemoveItem(cartitem))">Remove</button>
+                                        }
+                                        else
+                                        {
+                                            <p class="text-right">
+                                                <button type="button" class="btn btn-success"
+                                                @onclick="() => AddOneTime(item.Amenity.AmenityID)">
+                                                    Add
+                                                </button>
+                                            </p>
+                                        }
+                                    }
+                                    else if(item.Amenity.PerNightStay){
+                                        if (isSelected)
+                                        {
+                                            var cartitem = cartService.Items.FirstOrDefault(x => x.ExtraAmenityID == item.Amenity.AmenityID);
+                                            <button type="button" class="btn btn-secondary ml-3" data-id="@item.Amenity.AmenityID" @onclick="@(() => cartService.RemoveItem(cartitem))">Remove</button>
+                                        }
+                                        else
+                                        {
+                                            <p class="text-right">
+                                                <button type="button" class="btn btn-success"
+                                                @onclick="() => AddPerNight(item.Amenity.AmenityID)">
+                                                    Add
+                                                </button>
+                                            </p>
+                                        }
+                                    }
+                                    else if(item.Amenity.OneTimeFeePerson){
+                                        EnsureGuestNumKeyInitialized(item.Amenity.AmenityID, "perperson");
+                                        var typeKey = $"{item.Amenity.AmenityID}_perperson";
+
+                                        if(isSelected){
+                                            var cartitem = cartService.Items.FirstOrDefault(x => x.ExtraAmenityID == item.Amenity.AmenityID);
+                                            <button type="button" class="btn btn-secondary ml-3" data-id="@item.Amenity.AmenityID" @onclick="@(() => cartService.RemoveItem(cartitem))">Remove</button>
+                                        }
+                                        else{
+                                            <p class="text-right">
+                                                <select class="custom-select w-50" @bind="selectedGuestNums[typeKey]">
+                                                    @for (int g = 1; g <= guests; g++)
+                                                    {
+                                                        <option value="@g">@g</option>
+                                                    }
+                                                </select>
+                                            </p>
+                                            <p class="text-right">
+                                                <button type="button" class="btn btn-success"
+                                                @onclick="() => AddPerPerson(item.Amenity.AmenityID, selectedGuestNums[typeKey])">
+                                                    Add
+                                                </button>
+                                            </p>
+                                        }
+                                    }
+                                    else if(item.Amenity.Discount){
+                                        EnsureGuestNumKeyInitialized(item.Amenity.AmenityID, "discount");
+                                        var typeKey = $"{item.Amenity.AmenityID}_discount";
+                                        if (isSelected)
+                                        {
+                                            foreach (var cartitem in cartService.Items.FindAll(x => x.ExtraAmenityID == item.Amenity.AmenityID))
+                                            {
+                                                <p>
+                                                    Qty: @cartitem.NumOfPeople.ToString()
+                                                    <button type="button" class="btn btn-secondary ml-3" data-id="@cartitem.ExtraAmenityID" @onclick="@(() => cartService.RemoveItem(cartitem))">Remove</button>
+                                                </p>
+
+                                            }
+                                        }
+                                        <p class="text-right">
+                                            <select class="custom-select w-50" @bind="selectedGuestNums[typeKey]" >
+                                                @for (int g = 1; g <= guests; g++)
+                                                {
+                                                    <option value="@g">@g</option>
+                                                }
+                                            </select>
+                                        </p>
+                                        <p class="text-right">
+                                            <button type="button" class="btn btn-success"
+                                            @onclick="() => AddDiscount(item.Amenity.AmenityID, selectedGuestNums[typeKey])">
+                                                Add
+                                            </button>
+                                        </p>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        }
+        else
+        {
+            <p>Loading Amenities....</p>
+        }
+    </div>
+
+
+</div>
+
+
+@code {
+    [Parameter]
+    public int id { get; set; }
+
+
+    private List<AmenityModel> amenityList = new List<AmenityModel>();
+
+    private Dictionary<string, string?> selectedDates = new();
+    private Dictionary<string, int?> selectedGuestNums = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        amenityList = await addonService.GetAllOptionalAmenities(id);
+        await base.OnInitializedAsync();
+    }
+
+    private async Task ViewCart()
+    {
+        await JS.InvokeVoidAsync("showModal", "cartModal");
+        StateHasChanged();
+    }
+
+    private void EnsureDateKeyInitialized(int amenityId, string type, string firstDate)
+    {
+        string key = $"{amenityId}_{type}";
+        if(!selectedDates.ContainsKey(key))
+        {
+            selectedDates[key] = firstDate;
+        }
+    }
+    private void EnsureGuestNumKeyInitialized(int amenityId, string type)
+    {    
+        string key = $"{amenityId}_{type}";
+        if (!selectedGuestNums.ContainsKey(key))
+        {
+            selectedGuestNums[key] = 1;
+        }
+    }
+
+    private void AddPerDay(int amenityId, string? date)
+    {
+        var amenity = FindAmenityModel(amenityId)?.Amenity;
+
+        if(amenity != null){
+
+            cartService.AddItem(new SelectedAmenityModel
+                {
+                    ExtraAmenityID  = amenity.AmenityID,
+                    AmenityName = amenity.Name,
+                    Fee = amenity.AmenityRate,
+                    Tax = cartService.CalculateTax(amenity),
+                    Date = date,
+                    NumOfPeople = 1
+
+                });     
+        }
+    }
+    private void AddPerDayPerson(int amenityId, string? date, int? guestNum)
+    {
+        var amenity = FindAmenityModel(amenityId)?.Amenity;
+
+        if (amenity != null)
+        {          
+            cartService.AddItem(new SelectedAmenityModel
+                {
+                    ExtraAmenityID = amenity.AmenityID,
+                    AmenityName = amenity.Name,
+                    Fee = amenity.AmenityRate,
+                    Tax = cartService.CalculateTax(amenity),
+                    Date = date,
+                    NumOfPeople = guestNum
+                });
+        }
+    }
+    private void AddOneTime(int amenityId)
+    {
+        var amenity = FindAmenityModel(amenityId)?.Amenity;
+        if(amenity != null){
+
+            cartService.AddItem(new SelectedAmenityModel
+                {
+                    ExtraAmenityID = amenity.AmenityID,
+                    AmenityName = amenity.Name,
+                    Fee = amenity.AmenityRate,
+                    Tax = cartService.CalculateTax(amenity),
+                    Date = null,
+                    NumOfPeople = 1
+                });
+        }
+    }
+    private void AddPerNight(int amenityId)
+    {
+        var amenity = FindAmenityModel(amenityId)?.Amenity;
+
+        if (amenity != null)
+        {
+            TimeSpan timeSpan = amenityModel.BookingModel.SearchModel.DepartureDate.Subtract(amenityModel.BookingModel.SearchModel.ArrivalDate);
+
+            cartService.AddItem(new SelectedAmenityModel
+                {
+                    ExtraAmenityID = amenity.AmenityID,
+                    AmenityName = amenity.Name,
+                    Fee = amenity.AmenityRate,
+                    Tax = cartService.CalculateTax(amenity),
+                    Date = null,
+                    NumOfPeople = timeSpan.Days
+                });
+        }
+    }
+    private void AddPerPerson(int amenityId, int? guestNum)
+    {
+        var amenity = FindAmenityModel(amenityId)?.Amenity;
+        if (amenity != null)
+        {
+            cartService.AddItem(new SelectedAmenityModel
+                {
+                    ExtraAmenityID = amenity.AmenityID,
+                    AmenityName = amenity.Name,
+                    Fee = amenity.AmenityRate,
+                    Tax = cartService.CalculateTax(amenity),
+                    Date = null,
+                    NumOfPeople = guestNum
+                });
+        }
+    }
+    private void AddDiscount(int amenityId, int? guestNum)
+    {
+        var amenity = FindAmenityModel(amenityId)?.Amenity;
+
+        if (amenity != null)
+        {
+            cartService.AddItem(new SelectedAmenityModel
+                {
+                    ExtraAmenityID = amenity.AmenityID,
+                    AmenityName = amenity.Name,
+                    Fee = amenity.AmenityRate,
+                    Tax = cartService.CalculateTax(amenity),                    
+                    Date = null,
+                    NumOfPeople = guestNum
+                });
+        }
+    }
+
+    private AmenityModel? FindAmenityModel(int id) => amenityList.FirstOrDefault(x => x.Amenity.AmenityID == id);
+
+    private void NavigateAddCart()
+    {      
+        Navigation.NavigateTo("/Book");
+    }
+
+    private void NavigateNullCart(){
+        cartService.ClearCart();
+        Navigation.NavigateTo("/Book");
+    }
+}

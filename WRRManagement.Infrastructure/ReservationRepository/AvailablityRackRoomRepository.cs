@@ -64,6 +64,7 @@ namespace WRRManagement.Infrastructure.ReservationRepository
                     List<DateTime> dates = new List<DateTime>();
                     decimal subTotal = 0;
                     decimal weekEndFee = 0;
+                    int maxGuests = 0;
                     decimal extraGuestFee = 0;
                     decimal deposit = 0;
                     int minStay = 0;
@@ -135,7 +136,7 @@ namespace WRRManagement.Infrastructure.ReservationRepository
                         {
                             MaxBase maxBase = maxBaseRepository.GetByRoomID(room.RoomTypeID);
                             int guestToCharge = (adults + children) - maxBase.MaxBaseCount;
-
+                            maxGuests = maxBase.MaxBaseCount;
                             if(guestToCharge > 0)
                                 extraGuestFee += (guestToCharge * system.ExtraBaseFee * days);
                         }
@@ -144,6 +145,7 @@ namespace WRRManagement.Infrastructure.ReservationRepository
                             AdultBase adultBase = adultBaseRepository.GetByRoomID(room.RoomTypeID);
                             int adultToCharge = adults - adultBase.AdultBaseCount;
                             int childToCharge = children - adultBase.ChildBaseCount;
+                            maxGuests = adultBase.MaxRoomTotal;
 
                             if (adultToCharge > 0)
                                 extraGuestFee += (adultToCharge * system.ExtraAdultFee * days);
@@ -200,11 +202,9 @@ namespace WRRManagement.Infrastructure.ReservationRepository
                                 deposit = rates[0];
                         }
                         int lowallocation = 0;
-                        int allocationNumber = roomAllocationRepository.GetQuantityForDay(room.RoomTypeID, startDate);
+                        lowallocation = roomAllocationRepository.LowestAllocation(room.RoomTypeID, startDate, endDate);
                         int allocationLimit = hotelSystemRepository.GetSystem(hotelId).LowAllocationLimit;
-                        if(allocationNumber <= allocationLimit)
-                            lowallocation = allocationLimit;
-
+                   
                         List<RoomImage> roomImages = roomImageRepository.GetRoomImages(room.RoomTypeID);
                         foreach(var img in roomImages)
                         {
@@ -228,12 +228,13 @@ namespace WRRManagement.Infrastructure.ReservationRepository
                             extraGuestFee = extraGuestFee,
                             resortFee = resortFee,
                             avgDailyRate = subTotal / days,
-                            ViewRoomRateAs = system.DisplayRoomRatesAs,
+                            ViewRoomRateAs = system.DisplayRoomBreakDownAs,
                             total = tax + allExtraFee + subTotal,
                             tax = tax,
                             deposit = deposit,
                             allExtraFees = allExtraFee,
-                            LowAllocation = lowallocation
+                            LowAllocation = (lowallocation <= allocationLimit) ? lowallocation : 0,
+                            maxGuests = maxGuests
 
                         };
 

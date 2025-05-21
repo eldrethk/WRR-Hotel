@@ -4,7 +4,9 @@
 @inject NavigationManager Navigation
 @inject BookingModel bookingModel
 @inject ErrorState ErrorStateService
-@inject WRR_Reserv.Services.BookService bookService
+@inject BookService bookService
+
+@inject AmenityCartService cartService
 
 @if (bookingModel == null)
 {
@@ -42,9 +44,40 @@ else
                             }
                         </p>
                         <hr />
-                        <h4>Add-on Section - need to add</h4>
+                        @if (cartService.Items.Any())
+                        {
+                            <h4>Add-on Section</h4>
+                            <table class="w-100">
+                                @foreach(var item in cartService.Items){
+                                    <tr>
+                                        <td colspan="3">
+                                            <p class="h5 text-info">@item.AmenityName</p>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            @if (item.Date != null)
+                                            {
+                                                <p class="text-secondary"><i class="fas fa-calendar-alt pr-2"></i>@item.Date</p>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if(item.NumOfPeople > 0){
+                                                <p>Qty. x @item.NumOfPeople.ToString()</p>
+                                            }
+                                        </td>
+                                        <td class="text-right pr-2">
+                                            <p>@string.Format("{0:C}", (item.Fee + item.Tax))</p>
+                                        </td>
+                                    </tr>
+                                }
+                            </table>
+                        }
                         <div class="p-2 rounded text-right font-weight-bold">
                             <p>Subtotal: @bookingModel.availableRackRooms.subTotal</p>
+                            @if(cartService.GetTotal() > 0){
+                                <p>Add-ons : @string.Format("{0:C}", cartService.GetTotal())</p>
+                            }
                             <p>Taxes & Fees: @allfees.ToString("C")</p>
                             <p class="text-primary">Total: @bookingModel.availableRackRooms.total.ToString("C")</p>
                         </div>
